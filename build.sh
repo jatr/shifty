@@ -3,10 +3,8 @@
 # All the files to build...
 cat src/shifty.core.js \
 	src/shifty.formulas.js \
-	src/shifty.queue.js \
-	src/shifty.color.js \
-	src/shifty.css_units.js \
 	src/shifty.interpolate.js \
+	src/shifty.clamp.js \
 	> shifty.js
 
 

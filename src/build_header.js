@@ -1,5 +1,5 @@
 /**
-Shifty - A teeny tiny tweening engine in JavaScript. 
+Mifty - A custom build of Shifty for Morf.js: https://github.com/joelambert/morf
 By Jeremy Kahn - jeremyckahn@gmail.com
 
   v0.4.2

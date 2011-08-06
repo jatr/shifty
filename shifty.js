@@ -630,321 +630,6 @@ MIT Lincense.  This code free to use, modify, distribute and enjoy.
 /*global setTimeout:true, clearTimeout:true */
 
 /**
-Shifty Queue Extension
-By Jeremy Kahn - jeremyckahn@gmail.com
-  v0.1.0
-
-Dependencies: shifty.core.js
-
-Tweeny and all official extensions are freely available under an MIT license.
-For instructions on how to use Tweeny and this extension, please consult the manual: https://github.com/jeremyckahn/shifty/blob/master/README.md
-For instructions on how to use this extension, please see: https://github.com/jeremyckahn/shifty/blob/master/doc/shifty.queue.md
-
-MIT Lincense.  This code free to use, modify, distribute and enjoy.
-
-*/
-
-(function shiftyQueue (global) {
-	
-	function iterateQueue (queue) {
-		queue.shift();
-
-		if (queue.length) {
-			queue[0]();
-		} else {
-			queue.running = false;
-		}
-	}
-	
-	function getWrappedCallback (callback, queue) {
-		return function () {
-			callback();
-			iterateQueue(queue);
-		};
-	}
-	
-	function tweenInit (context, from, to, duration, callback, easing) {
-		// Duck typing!  This method infers some info from the parameters above to determine which method to call,
-		// and what paramters to pass to it.
-		return function () {
-			if (to) {
-				// Longhand notation was used, call `tween`
-				context.tween(from, to, duration, callback, easing);
-			} else {
-				// Shorthand notation was used
-				
-				// Ensure that that `wrappedCallback` (from `queue`) gets passed along.
-				from.callback = callback;
-				if (from.from) {
-					context.tween(from);
-				} else {
-					// `from` data was omitted, call `to`
-					context.to(from);
-				}
-			}
-		};
-	}
-
-	global.Tweenable.prototype.queue = function (from, to, duration, callback, easing) {
-		var wrappedCallback;
-			
-		if (!this._tweenQueue) {
-			this._tweenQueue = [];
-		}
-
-		// Make sure there is always an invokable callback
-		callback = callback || from.callback || function () {};
-		wrappedCallback = getWrappedCallback(callback, this._tweenQueue);
-		this._tweenQueue.push(tweenInit(this, from, to, duration, wrappedCallback, easing));
-
-		if (!this._tweenQueue.running) {
-			this._tweenQueue[0]();
-			this._tweenQueue.running = true;
-		}
-		
-		return this;
-	};
-
-	global.Tweenable.prototype.queueShift = function () {
-		this._tweenQueue.shift();
-		return this;
-	};
-	
-	global.Tweenable.prototype.queuePop = function () {
-		this._tweenQueue.pop();
-		return this;
-	};
-
-	global.Tweenable.prototype.queueEmpty = function () {
-		this._tweenQueue.length = 0;
-		return this;
-	};
-
-	global.Tweenable.prototype.queueLength = function () {
-		return this._tweenQueue.length;
-	};
-	
-}(this));
-/**
-Shifty Color Extension
-By Jeremy Kahn - jeremyckahn@gmail.com
-  v0.1.0
-
-For instructions on how to use Shifty, please consult the README: https://github.com/jeremyckahn/shifty/blob/master/README.md
-For instructions on how to use this extension, please see: https://github.com/jeremyckahn/shifty/blob/master/doc/shifty.color.md
-
-MIT Lincense.  This code free to use, modify, distribute and enjoy.
-
-*/
-
-(function shiftyColor (global) {
-	var R_SHORTHAND_HEX = /^#([0-9]|[a-f]){3}$/i,
-		R_LONGHAND_HEX = /^#([0-9]|[a-f]){6}$/i,
-		R_RGB = /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)\s*$/i,
-		savedRGBPropNames;
-	
-	if (!global.Tweenable) {
-		return;
-	}
-	
-	/**
-	 * Convert a base-16 number to base-10.
-	 * @param {Number|String} hex The value to convert
-	 * @returns {Number} The base-10 equivalent of `hex`.
-	 */
-	function hexToDec (hex) {
-		return parseInt(hex, 16);
-	}
-
-	/**
-	 * Convert a hexadecimal string to an array with three items, one each for the red, blue, and green decimal values.
-	 * @param {String} hex A hexadecimal string.
-	 * @returns {Array} The converted Array of RGB values if `hex` is a valid string, or an Array of three 0's.
-	 */
-	function hexToRGBArr (hex) {
-		
-		hex = hex.replace(/#/g, '');
-		
-		// If the string is a shorthand three digit hex notation, normalize it to the standard six digit notation
-		if (hex.length === 3) {
-			hex = hex.split('');
-			hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-		}
-		
-		return [hexToDec(hex.substr(0, 2)), hexToDec(hex.substr(2, 2)), hexToDec(hex.substr(4, 2))];
-	}
-	
-	function getRGBStringFromHex (str) {
-		var rgbArr,
-			convertedStr;
-		rgbArr = hexToRGBArr(str);
-		convertedStr = 'rgb(' + rgbArr[0] + ',' + rgbArr[1] + ',' + rgbArr[2] + ')';
-		
-		return convertedStr;
-	}
-	
-	function isColorString (str) {
-		return (typeof str === 'string') && (R_SHORTHAND_HEX.test(str) || R_LONGHAND_HEX.test(str) || R_RGB.test(str));
-	}
-	
-	function isHexString (str) {
-		return (typeof str === 'string') && (R_SHORTHAND_HEX.test(str) || R_LONGHAND_HEX.test(str));
-	}
-	
-	function convertHexStringPropsToRGB (obj) {
-		global.Tweenable.util.each(obj, function (obj, prop) {
-			if (isHexString(obj[prop])) {
-				obj[prop] = getRGBStringFromHex(obj[prop]);
-			}
-		});
-	}
-	
-	function getColorStringPropNames (obj) {
-		var list;
-		
-		list = [];
-		
-		global.Tweenable.util.each(obj, function (obj, prop) {
-			if (isColorString(obj[prop])) {
-				list.push(prop);
-			}
-		});
-		
-		return list;
-	}
-	
-	function rgbToArr (str) {
-		return str.match(/(\d+)/g);
-	}
-	
-	function splitRGBChunks (obj, rgbPropNames) {
-		var i,
-			limit,
-			rgbParts;
-			
-			limit = rgbPropNames.length;
-			
-			for (i = 0; i < limit; i++) {
-				rgbParts = rgbToArr(obj[rgbPropNames[i]]);
-				obj['__r__' + rgbPropNames[i]] = +rgbParts[0];
-				obj['__g__' + rgbPropNames[i]] = +rgbParts[1];
-				obj['__b__' + rgbPropNames[i]] = +rgbParts[2];
-				delete obj[rgbPropNames[i]];
-			}
-	}
-	
-	function joinRGBChunks (obj, rgbPropNames) {
-		var i,
-			limit;
-			
-		limit = rgbPropNames.length;
-		
-		for (i = 0; i < limit; i++) {
-			
-			obj[rgbPropNames[i]] = 'rgb(' + 
-				parseInt(obj['__r__' + rgbPropNames[i]], 10) + ',' + 
-				parseInt(obj['__g__' + rgbPropNames[i]], 10) + ',' + 
-				parseInt(obj['__b__' + rgbPropNames[i]], 10) + ')';
-			
-			delete obj['__r__' + rgbPropNames[i]];
-			delete obj['__g__' + rgbPropNames[i]];
-			delete obj['__b__' + rgbPropNames[i]];
-		}
-	}
-	
-	global.Tweenable.prototype.filter.color = {
-		'tweenCreated': function tweenCreated (currentState, fromState, toState) {
-			convertHexStringPropsToRGB(currentState);
-			convertHexStringPropsToRGB(fromState);
-			convertHexStringPropsToRGB(toState);
-		},
-		
-		'beforeTween': function beforeTween (currentState, fromState, toState) {
-			savedRGBPropNames = getColorStringPropNames(fromState);
-			
-			splitRGBChunks(currentState, savedRGBPropNames);
-			splitRGBChunks(fromState, savedRGBPropNames);
-			splitRGBChunks(toState, savedRGBPropNames);
-		},
-		
-		'afterTween': function afterTween (currentState, fromState, toState) {
-			joinRGBChunks(currentState, savedRGBPropNames);
-			joinRGBChunks(fromState, savedRGBPropNames);
-			joinRGBChunks(toState, savedRGBPropNames);
-		}
-	};
-	
-}(this));
-/**
-Shifty CSS Unit Extension
-By Jeremy Kahn - jeremyckahn@gmail.com
-  v0.1.0
-
-For instructions on how to use Shifty, please consult the README: https://github.com/jeremyckahn/shifty/blob/master/README.md
-For instructions on how to use this extension, please see: https://github.com/jeremyckahn/shifty/blob/master/doc/shifty.css_units.md
-
-MIT Lincense.  This code free to use, modify, distribute and enjoy.
-
-*/
-
-(function shiftyCSSUnits (global) {
-	var R_CSS_UNITS = /(px|em|%|pc|pt|mm|cm|in|ex)/i,
-		R_QUICK_CSS_UNITS = /([a-z]|%)/gi,
-		savedTokenProps;
-	
-	function isValidString (str) {
-		return typeof str === 'string' && R_CSS_UNITS.test(str);
-	}
-	
-	function getTokenProps (obj) {
-		var collection;
-
-		collection = {};
-		
-		global.Tweenable.util.each(obj, function (obj, prop) {
-			if (isValidString(obj[prop])) {
-				collection[prop] = {
-					'suffix': obj[prop].match(R_CSS_UNITS)[0]
-				};
-			}
-		});
-		
-		return collection;
-	}
-	
-	function deTokenize (obj, tokenProps) {
-		global.Tweenable.util.each(tokenProps, function (collection, token) {
-			// Extract the value from the string
-			obj[token] = +(obj[token].replace(R_QUICK_CSS_UNITS, ''));
-		});
-	}
-	
-	function reTokenize (obj, tokenProps) {
-		global.Tweenable.util.each(tokenProps, function (collection, token) {
-			obj[token] = obj[token] + collection[token].suffix;
-		});
-	}
-	
-	global.Tweenable.prototype.filter.token = {
-		'beforeTween': function beforeTween (currentState, fromState, toState) {
-			savedTokenProps = getTokenProps(fromState);
-			
-			deTokenize(currentState, savedTokenProps);
-			deTokenize(fromState, savedTokenProps);
-			deTokenize(toState, savedTokenProps);
-		},
-		
-		'afterTween': function afterTween (currentState, fromState, toState) {
-			reTokenize(currentState, savedTokenProps);
-			reTokenize(fromState, savedTokenProps);
-			reTokenize(toState, savedTokenProps);
-		}
-	};
-	
-}(this));
-/*global setTimeout:true, clearTimeout:true */
-
-/**
 Shifty Interpolate Extension
 By Jeremy Kahn - jeremyckahn@gmail.com
   v0.1.0
@@ -1010,4 +695,81 @@ MIT Lincense.  This code free to use, modify, distribute and enjoy.
 		
 		return interpolatedValues;
 	};
+}(this));
+/*global setTimeout:true, clearTimeout:true */
+
+/**
+Shifty Clamp Extension
+By Jeremy Kahn - jeremyckahn@gmail.com
+  v0.1.0
+
+Dependencies: shifty.core.js
+
+Tweeny and all official extensions are freely available under an MIT license.
+For instructions on how to use Tweeny and this extension, please consult the manual: https://github.com/jeremyckahn/shifty/blob/master/README.md
+For instructions on how to use this extension, please see: https://github.com/jeremyckahn/shifty/blob/master/doc/shifty.queue.md
+
+MIT Lincense.  This code free to use, modify, distribute and enjoy.
+
+*/
+
+(function shiftyClamp (global) {
+	var staticClamp;
+	
+	if (!global.Tweenable) {
+		return;
+	}
+	
+	function applyClampsToState (state) {
+		var clamps;
+		
+		// Combine both the static clamps and instance clamps.  Instance clamps trump Static clamps, if there is a conflict.
+		clamps = global.Tweenable.util.weakCopy( (this._tweenParams.data.clamps || {}), staticClamp.clamps);
+		
+		global.Tweenable.util.each(clamps, function (obj, prop) {
+			if (state.hasOwnProperty(prop)) {
+				state[prop] = Math.max(state[prop], clamps[prop].bottom);
+				state[prop] = Math.min(state[prop], clamps[prop].top);
+			}
+		});
+	}
+	
+	// Static versions of the clamp methods.  These set clamps for all tweens made by `Tweenable`.
+	// If an instance of `Tweenable` has a clamp on a property, and different clamp has been set
+	// statically on the same propety, only the instance clamp is respected.
+	staticClamp = global.Tweenable.util.setClamp = function (propertyName, bottomRange, topRange) {
+		staticClamp.clamps[propertyName] = {
+			'bottom': bottomRange
+			,'top': topRange
+		};
+	};
+	
+	global.Tweenable.util.removeClamp = function (propertyName) {
+		return delete staticClamp.clamps[propertyName];
+	};
+	
+	// This is the inheritable instance-method version of the function.
+	global.Tweenable.prototype.setClamp = function (propertyName, bottomRange, topRange) {
+		if (!this._tweenParams.data.clamps) {
+			this._tweenParams.data.clamps = {};
+		}
+		
+		this._tweenParams.data.clamps[propertyName] = {
+			'bottom': bottomRange
+			,'top': topRange
+		};
+	};
+	
+	global.Tweenable.prototype.removeClamp = function (propertyName) {
+		return delete this._tweenParams.data.clamps[propertyName];
+	};
+	
+	global.Tweenable.prototype.filter.clamp = {
+		'afterTween': applyClampsToState
+		
+		,'afterTweenEnd': applyClampsToState
+	};
+	
+	staticClamp.clamps = {};
+	
 }(this));
