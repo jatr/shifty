@@ -5,11 +5,11 @@ cat src/shifty.core.js \
 	src/shifty.formulas.js \
 	src/shifty.interpolate.js \
 	src/shifty.clamp.js \
-	> shifty.js
+	> mifty.js
 
 
-in=shifty.js
-out=builds/shifty.minsrc.js
+in=mifty.js
+out=builds/mifty.minsrc.js
 
 curl -s \
 	-d compilation_level=SIMPLE_OPTIMIZATIONS \
@@ -19,6 +19,6 @@ curl -s \
 	http://closure-compiler.appspot.com/compile \
 	 > $out
 
-cat src/build_header.js builds/shifty.minsrc.js > builds/shifty.min.js
+cat src/build_header.js builds/mifty.minsrc.js > builds/mifty.min.js
 
-rm builds/shifty.minsrc.js
+rm builds/mifty.minsrc.js
