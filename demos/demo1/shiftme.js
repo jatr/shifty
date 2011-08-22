@@ -26,7 +26,7 @@
 		return ret;
 	}
 
-	function grow (callback) {
+	function grow (el, callback) {
 		tweener.to({
 			'to': {
 				'font-size': '200px'
@@ -37,14 +37,14 @@
 			,'easing': 'easeOutBounce'
 
 			,'step': function step () {
-				me.style.fontSize = this['font-size'];
+				el.style.fontSize = this['font-size'];
 			}
 
 			,'callback': callback
 		});
 	}
 
-	function fade (callback) {
+	function fade (el, callback) {
 		tweener.to({
 			'to': {
 				'color': '#bada55'
@@ -55,28 +55,33 @@
 			,'easing': 'easeOutExpo'
 
 			,'step': function step () {
-				me.style.color = this['color'];
+				el.style.color = this['color'];
 			}
 
 			,'callback': callback
 		});
 	}
-	
-	me = document.getElementById('shift-me');
-	originalFontSize = originalColor = getStyle(me, 'font-size');
-	originalColor = getStyle(me, 'color');
 
-	tweener = new Tweenable({
-		'initialState': {
-			'font-size': originalFontSize
-			,'color': originalColor
-		}
+	function init (el) {
+		originalFontSize = getStyle(el, 'font-size');
+		originalColor = getStyle(el, 'color');
 		
-		,'fps': 60
-	});
-	
-	grow(function () {
-		fade();
+		tweener = new Tweenable({
+			'initialState': {
+				'font-size': originalFontSize
+				,'color': originalColor
+			}
+
+			,'fps': 60
+		});
+	}
+
+	global.shiftyDemo = global.shiftyDemo || {};
+
+	Tweenable.util.simpleCopy(global.shiftyDemo, {
+	    'introInit': init
+	    ,'introGrow': grow
+	    ,'introFade': fade
 	});
 	
 } (this));
