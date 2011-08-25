@@ -20,11 +20,12 @@
     <style type="text/css" media="screen">
     /* REAL BADASSES USE INLINE STYLESHEETS */
     header {
-
+	height: 160px;
     }
 
     #banner {
 	font-family: 'Carter One', 'Comic Sans MS, 'sans-serif; /* COMIC SANS FUCK YEAAAAAAAAAAAH */
+	margin: 0px auto;
     }
 	    
     </style>
@@ -53,7 +54,7 @@
 
 	    global.shiftyDemo.introInit(header);
 
-	    global.shiftyDemo.introGrow(header, function () {
+	    global.shiftyDemo.introGrow(header, 140, function () {
 		global.shiftyDemo.introFade(header);
 	    });
 	} (this));

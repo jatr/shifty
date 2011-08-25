@@ -26,10 +26,10 @@
 		return ret;
 	}
 
-	function grow (el, callback) {
+	function grow (el, size, callback) {
 		tweener.to({
 			'to': {
-				'font-size': '200px'
+				'font-size': size + 'px'
 			}
 
 			,'duration': 600
