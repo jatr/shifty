@@ -5,22 +5,29 @@
 <!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-  <meta charset="utf-8">
+    <meta charset="utf-8">
 
-  <!-- Use the .htaccess and remove these lines to avoid edge case issues.
+    <!-- Use the .htaccess and remove these lines to avoid edge case issues.
        More info: h5bp.com/b/378 -->
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <title>Shifty!</title>
+    <title>Shifty!</title>
 
-  <!-- Mobile viewport optimized: j.mp/bplateviewport -->
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Mobile viewport optimized: j.mp/bplateviewport -->
+    <meta name="viewport" content="width=device-width,initial-scale=1">
 
-	<style type="text/css" media="screen">
-	/* REAL BADASSES USE INLINE STYLESHEETS */
-		
-		
-	</style>
+    <link href='http://fonts.googleapis.com/css?family=Carter+One' rel='stylesheet' type='text/css'>
+    <style type="text/css" media="screen">
+    /* REAL BADASSES USE INLINE STYLESHEETS */
+    header {
+
+    }
+
+    #banner {
+	font-family: 'Carter One', 'Comic Sans MS, 'sans-serif; /* COMIC SANS FUCK YEAAAAAAAAAAAH */
+    }
+	    
+    </style>
   <!-- end CSS-->
 </head>
 
@@ -28,7 +35,7 @@
 
   <div id="container">
     <header>
-        <h1>Shifty!</h1>
+        <h1 id="banner">Shifty!</h1>
     </header>
     <div id="main" role="main">
 
@@ -38,6 +45,20 @@
     </footer>
   </div> <!--! end of #container -->
 	<script type="text/javascript" src="builds/shifty.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="demos/demo1/shiftme.js" charset="utf-8"></script>
+	<script type="text/javascript" charset="utf-8">
+	(function (global) {
+
+	    var header = document.getElementById('banner'); 
+
+	    global.shiftyDemo.introInit(header);
+
+	    global.shiftyDemo.introGrow(header, function () {
+		global.shiftyDemo.introFade(header);
+	    });
+	} (this));
+	</script>
+
   <!-- end scripts-->
 
 
