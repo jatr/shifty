@@ -12,6 +12,8 @@ MIT Lincense.  This code free to use, modify, distribute and enjoy.
 */
 
 (function Shifty (global) {
+
+        var updateMethod;
 	
 	/**
 	 * Get the current UNIX epoch time as an integer.  Exposed publicly as `Tweenable.util.now()`.
@@ -91,7 +93,7 @@ MIT Lincense.  This code free to use, modify, distribute and enjoy.
 	}
 	
 	function scheduleUpdate (handler, fps) {
-		return setTimeout(handler, 1000 / fps);
+		return updateMethod(handler, 1000 / fps);
 	}
 	
 	/**
@@ -428,6 +430,13 @@ MIT Lincense.  This code free to use, modify, distribute and enjoy.
 			return pos;
 		}
 	};
+        
+        updateMethod = window.requestAnimationFrame ||
+                    window.webkitRequestAnimationFrame ||
+                    window.mozRequestAnimationFrame    ||
+                    window.oRequestAnimationFrame      ||
+                    window.msRequestAnimationFrame     ||
+                    setTimeout;
 	
 	if (typeof global.Tweenable === 'undefined') {
 		// Make `Tweenable` globally accessible.
