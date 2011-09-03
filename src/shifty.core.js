@@ -270,7 +270,7 @@ MIT Lincense.  This code free to use, modify, distribute and enjoy.
 		this._tweenParams.originalState = simpleCopy({}, this._state.current);
 		this._state.isAnimating = true;
 
-		scheduleUpdate(function () {
+		this._state.loopId = scheduleUpdate(function () {
 			timeoutHandler(self._tweenParams, self._state);
 		}, this.fps);
 		
@@ -357,7 +357,7 @@ MIT Lincense.  This code free to use, modify, distribute and enjoy.
 			this._tweenParams.timestamp += this._state.pausedAtTime - this._tweenParams.timestamp;
 		}
 		
-		scheduleUpdate(function () {
+		this._state.loopId = scheduleUpdate(function () {
 			timeoutHandler(self._tweenParams, self._state);
 		}, this.fps);
 		
